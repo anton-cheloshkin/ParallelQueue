@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ExecutionManager\**" />
+    <Compile Remove="Extensions\**" />
+    <Compile Remove="QueueManager\**" />
+    <EmbeddedResource Remove="ExecutionManager\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <EmbeddedResource Remove="QueueManager\**" />
+    <None Remove="ExecutionManager\**" />
+    <None Remove="Extensions\**" />
+    <None Remove="QueueManager\**" />
+  </ItemGroup>
+
+</Project>

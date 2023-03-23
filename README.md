@@ -42,7 +42,7 @@ Enumerable
   .Range(0, 10)
   .AsParallel()
   .WithDegreeOfParallelism(Environment.ProcessorCount)
-  .ForAll(async i => await queue.EnqueueAsync(myTask));
+  .ForAll(async i => await queue.Enqueue(myTask));
 
 
 queue.OnDone(() => Console.WriteLine("message1"));

@@ -58,8 +58,9 @@ namespace Benchmark
                     .WithDegreeOfParallelism(Environment.ProcessorCount - 1)
                     .ForAll(async i => await Executor.EnqueueAsync(Sort));
 
-                await Executor.OnDoneAsync();
             }
+
+            await Executor.OnDoneAsync();
         }
     }
 }

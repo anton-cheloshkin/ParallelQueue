@@ -29,6 +29,11 @@ namespace ParallelQueue
             Queue.Enqueue(fn);
             ThreadPool.Execute();
         }
+        public async Task EnqueueAsync(Func<Task> fn)
+        {
+            await Queue.EnqueueAsync(fn);
+            ThreadPool.Execute();
+        }
         public void OnDone(Action fn)
         {
             Queue.OnDone(fn);

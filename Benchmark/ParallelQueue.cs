@@ -47,5 +47,19 @@ namespace Benchmark
                 await Executor.OnDoneAsync();
             }
         }
+        [Benchmark]
+        public async Task BenchmarkAsync()
+        {
+            for (var i = 0; i < Environment.ProcessorCount; i++)
+            {
+                Enumerable
+                    .Range(0, Arr.Length)
+                    .AsParallel()
+                    .WithDegreeOfParallelism(Environment.ProcessorCount - 1)
+                    .ForAll(async i => await Executor.EnqueueAsync(Sort));
+
+                await Executor.OnDoneAsync();
+            }
+        }
     }
 }

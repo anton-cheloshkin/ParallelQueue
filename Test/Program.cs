@@ -7,6 +7,7 @@ namespace Test
     {
         static async Task Main(string[] args)
         {
+            await new ParallelQueueTest().Test();
             await new ParallelQueueTest().TestAsync();
             Console.WriteLine("Hello World!");
         }

@@ -1,5 +1,6 @@
 ﻿using ParallelQueue;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,8 +23,11 @@ namespace Test
 
             return Task.CompletedTask;
         }
-        public async Task TestAsync()
+        public async Task Test()
         {
+            var stop = new Stopwatch();
+            stop.Start();
+
             var queue = new ParallelQueueExecutor();
             var countExpected = 0;
             var countProcessed = 0;
@@ -53,7 +57,53 @@ namespace Test
                 counter = 0;
             }
 
-            var message = $"Expected total: {countExpected}, Processed total: {countProcessed}";
+            stop.Stop();
+
+            var message = $"Expected total: {countExpected}, Processed total: {countProcessed} in {stop.ElapsedMilliseconds}ms";
+            Console.WriteLine(message);
+
+            if (countExpected != countProcessed)
+            {
+                throw new Exception(message);
+            }
+        }
+        public async Task TestAsync()
+        {
+            var stop = new Stopwatch();
+            stop.Start();
+
+            var queue = new ParallelQueueExecutor();
+            var countExpected = 0;
+            var countProcessed = 0;
+
+            for (var i = 0; i < 1000; i++)
+            {
+
+                Enumerable
+                    .Range(0, i)
+                    .AsParallel()
+                    .WithDegreeOfParallelism(Environment.ProcessorCount)
+                    .ForAll(async i => await queue.EnqueueAsync(TestTask));
+
+                queue.OnDone(() =>
+                {
+                    if (i != counter) Console.WriteLine($"Expected {i}, processed {counter}");
+                });
+                await queue.OnDoneAsync(() =>
+                {
+                    if (i != counter) Console.WriteLine($"Expected {i}, processed {counter}");
+                });
+                await queue.OnDoneAsync();
+
+                countExpected += i;
+                countProcessed += counter;
+
+                counter = 0;
+            }
+
+            stop.Stop();
+
+            var message = $"Expected total: {countExpected}, Processed total: {countProcessed} in {stop.ElapsedMilliseconds}ms";
             Console.WriteLine(message);
             if (countExpected != countProcessed)
             {

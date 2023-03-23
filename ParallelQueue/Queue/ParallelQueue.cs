@@ -19,6 +19,13 @@ namespace ParallelQueue
         {
             Queue.Enqueue(fn);
         }
+        SemaphoreSlim Sema = new SemaphoreSlim(Environment.ProcessorCount);
+        public async Task EnqueueAsync(Func<Task> fn)
+        {
+            await Sema.WaitAsync();
+            Queue.Enqueue(fn);
+            Sema.Release();
+        }
         public Func<Task> Dequeue()
         {
             Func<Task> fn;

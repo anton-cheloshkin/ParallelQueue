@@ -47,14 +47,6 @@ namespace ParallelQueue
 
             Bag.AfterRun();
 
-            /*
-            if (!Bag.AfterRunBool())
-            {
-                Interlocked.Decrement(ref isRunning);
-                return;
-            }
-            */
-
             await Task.Run(Execute);
         }
         public void Dispose()

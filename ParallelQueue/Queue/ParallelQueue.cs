@@ -8,28 +8,29 @@ namespace ParallelQueue
 {
     partial class ParallelQueue
     {
+        internal ILimitter Limitter;
         long threads = 0;
         readonly ConcurrentQueue<Func<Task>> Queue;
-        public int Count => Queue.Count;
+        public int Count => Queue.Count + (Limitter?.Count ?? 0);
         public ParallelQueue()
         {
             Queue = new ConcurrentQueue<Func<Task>>();
         }
         public void Enqueue(Func<Task> fn)
         {
-            Queue.Enqueue(fn);
+            if (Limitter != null) Limitter.Enqueue(fn);
+            else Queue.Enqueue(fn);
         }
         SemaphoreSlim Sema = new SemaphoreSlim(Environment.ProcessorCount);
         public async Task EnqueueAsync(Func<Task> fn)
         {
             await Sema.WaitAsync();
-            Queue.Enqueue(fn);
+            Enqueue(fn);
             Sema.Release();
         }
         public Func<Task> Dequeue()
         {
-            Func<Task> fn;
-            Queue.TryDequeue(out fn);
+            Queue.TryDequeue(out Func<Task> fn);
             return fn;
         }
         public void BeforeRun()
@@ -40,21 +41,10 @@ namespace ParallelQueue
         {
             Interlocked.Decrement(ref threads);
         }
-        public bool AfterRunBool()
-        {
-            var th = Interlocked.Decrement(ref threads);
-
-            if (th == 0)
-            {
-                FireDone();
-                return false;
-            }
-            return true;
-        }
         public void Done()
         {
             var th = Interlocked.Read(ref threads);
-            if (th == 0) FireDone();
+            if (th == 0 && (Limitter?.Count ?? 0) == 0) FireDone();
         }
         List<Action> OnDoneListeners = new List<Action>();
         void FireDone()
@@ -80,7 +70,7 @@ namespace ParallelQueue
             var task = src.Task;
 
             lock (OnDoneListeners)
-                if (Queue.Count > 0) OnDoneListeners.Add(() => src.SetResult(Task.CompletedTask));
+                if (Count > 0) OnDoneListeners.Add(() => src.SetResult(Task.CompletedTask));
                 else src.SetResult(Task.CompletedTask);
 
             return task;
@@ -91,7 +81,7 @@ namespace ParallelQueue
             var task = src.Task;
 
             lock (OnDoneListeners)
-                if (Queue.Count > 0) OnDoneListeners.Add(() =>
+                if (Count > 0) OnDoneListeners.Add(() =>
                 {
                     fn();
                     src.SetResult(Task.CompletedTask);

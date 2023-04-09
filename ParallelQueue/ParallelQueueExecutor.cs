@@ -5,7 +5,7 @@ namespace ParallelQueue
 {
     public partial class ParallelQueueExecutor
     {
-        ParallelQueue Queue;
+        internal ParallelQueue Queue;
         ThreadBag ThreadPool;
         int MaxThreads = Environment.ProcessorCount - 1;
         public int Count => Queue.Count;

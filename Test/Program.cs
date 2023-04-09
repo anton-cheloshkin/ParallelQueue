@@ -9,6 +9,7 @@ namespace Test
         {
             await new ParallelQueueTest().Test();
             await new ParallelQueueTest().TestAsync();
+            //await new ParallelQueueTest().TestLimitterAsync();
             Console.WriteLine("Hello World!");
         }
     }

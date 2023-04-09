@@ -1,11 +1,21 @@
 ## ParallelQueue
 
 Asynchronous parallel appendable execution library.\
-Can await for batched execution
+Can await for batched execution\
+Can limit executions per second
 
 ## Example
 ```c#
 var queue = new ParallelQueueExecutor();
+```
+or
+```c#
+var queue = new ParallelQueueExecutor()
+	.WithLimitterRPS(8);
+```
+
+```c#
+
 Func<Task> myTask = async () =>
 {
   // await do something work

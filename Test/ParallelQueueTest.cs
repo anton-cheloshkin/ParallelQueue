@@ -67,12 +67,16 @@ namespace Test
                 throw new Exception(message);
             }
         }
-        public async Task TestAsync()
+        public async Task TestLimitterAsync()
+        {
+            await TestAsync(new ParallelQueueExecutor().WithLimitterRPS(Environment.ProcessorCount));
+        }
+        public async Task TestAsync(ParallelQueueExecutor ex = default)
         {
             var stop = new Stopwatch();
             stop.Start();
 
-            var queue = new ParallelQueueExecutor();
+            var queue = ex ?? new ParallelQueueExecutor();
             var countExpected = 0;
             var countProcessed = 0;
 
